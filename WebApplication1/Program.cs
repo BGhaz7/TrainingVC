@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -29,7 +30,7 @@ public class pwHasher
             iterationCount: 100000,
             numBytesRequested: 256 / 8));
 
-        // Return the salt and the hash, for storage in the database
+        // Return the salt and the hash
         return $"{Convert.ToBase64String(salt)}:{hashed}";
     
         
@@ -59,8 +60,24 @@ public class pwHasher
     }
 }
 
+
+
 internal class Program
 {
+    private static string GenerateJwtToken(string username, Claim[] claims)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sGQ7+cHIYRyCJoq1l0F9utfBhCG4jxDVq9DKhrWyXys="));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: null, 
+            audience: null, 
+            claims: claims,
+            expires: DateTime.Now.AddHours(1), // Token expiration time
+            signingCredentials: creds);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
     public static void Main(string[] args)
     {
         var pwHasher = new pwHasher();
@@ -137,7 +154,7 @@ internal class Program
                     new Claim(ClaimTypes.Name, user.username)
                 };
 
-                var token = "INSERTJWTTOKEN";
+                var token = GenerateJwtToken(user.username, claims);
                 return Results.Ok(new { token });
 
             }
@@ -145,6 +162,23 @@ internal class Program
         }
     );
 
+        app.MapPut("v1/user/{user_id}", async (int user_id, UserRegisterDto modified ,AccountsContext db) =>
+        {
+            var user = await db.Users.FindAsync(user_id);
+            if (user == null)
+            {
+                Results.BadRequest("No such user found!");
+            }
+
+            user.username = modified.username;
+            user.email = modified.email;
+            user.fname = modified.fname;
+            user.lname = modified.lname;
+            user.SHA256Password = pwHasher.hashPw(modified.password);
+
+            await db.SaveChangesAsync();
+            return Results.NoContent();
+        });
 
     app.Run();
     }
