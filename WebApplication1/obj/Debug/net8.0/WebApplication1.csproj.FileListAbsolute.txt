@@ -153,3 +153,6 @@
 /Users/badr/RiderProjects/WebApplication1/WebApplication1/bin/Debug/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll
 /Users/badr/RiderProjects/WebApplication1/WebApplication1/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /Users/badr/RiderProjects/WebApplication1/WebApplication1/obj/Debug/net8.0/WebAppli.7D14BD69.Up2Date
+/Users/badr/RiderProjects/WebApplication1/WebApplication1/obj/Debug/net8.0/WebApplication1.sourcelink.json
+/Users/badr/RiderProjects/WebApplication1/WebApplication1/bin/Debug/net8.0/Microsoft.AspNetCore.Cryptography.Internal.dll
+/Users/badr/RiderProjects/WebApplication1/WebApplication1/bin/Debug/net8.0/Microsoft.AspNetCore.Cryptography.KeyDerivation.dll

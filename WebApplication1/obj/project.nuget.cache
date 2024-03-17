@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jeCk/jgTkHX4fSheqju5aKfJ4/K00BWQWFEKC823GSR02qWTxwLuzAB7cJumNVNoiO+WzSxQgaYuVrV8liGMWg==",
+  "dgSpecHash": "6NxRsCx8IddmZlMCSNosFZDIKq5xIxM2EVs/PKE92EQg5Gr4Cq7zpb//Dc/wNz/zy7aQEU0473g9VbLVTGsa/w==",
   "success": true,
   "projectFilePath": "/Users/badr/RiderProjects/WebApplication1/WebApplication1/WebApplication1.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,8 @@
     "/Users/badr/.nuget/packages/linqkit.core/1.2.5/linqkit.core.1.2.5.nupkg.sha512",
     "/Users/badr/.nuget/packages/linqkit.microsoft.entityframeworkcore/8.1.5/linqkit.microsoft.entityframeworkcore.8.1.5.nupkg.sha512",
     "/Users/badr/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/8.0.3/microsoft.aspnetcore.authentication.jwtbearer.8.0.3.nupkg.sha512",
+    "/Users/badr/.nuget/packages/microsoft.aspnetcore.cryptography.internal/8.0.3/microsoft.aspnetcore.cryptography.internal.8.0.3.nupkg.sha512",
+    "/Users/badr/.nuget/packages/microsoft.aspnetcore.cryptography.keyderivation/8.0.3/microsoft.aspnetcore.cryptography.keyderivation.8.0.3.nupkg.sha512",
     "/Users/badr/.nuget/packages/microsoft.aspnetcore.openapi/8.0.0/microsoft.aspnetcore.openapi.8.0.0.nupkg.sha512",
     "/Users/badr/.nuget/packages/microsoft.bcl.asyncinterfaces/7.0.0/microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
     "/Users/badr/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.4/microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",

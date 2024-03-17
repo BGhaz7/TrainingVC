@@ -10,6 +10,7 @@ namespace WebApplication1.Models
         public string fname { get; set; }
         public string lname { get; set; }
         public string email { get; set; }
+        public string SHA256Password { get; set; }
     }   
 }
 
