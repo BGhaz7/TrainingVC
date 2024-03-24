@@ -64,11 +64,12 @@ public class pwHasher
 
 internal class Program
 {
-    private static string GenerateJwtToken(string username, Claim[] claims)
+    private static string GenerateJwtToken(string username, List<Claim> claims)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sGQ7+cHIYRyCJoq1l0F9utfBhCG4jxDVq9DKhrWyXys="));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        //Issuer and Audience?
         var token = new JwtSecurityToken(
             issuer: null, 
             audience: null, 
@@ -118,6 +119,30 @@ internal class Program
             try
             {
                 await db.SaveChangesAsync();
+                var claims = new List<Claim>
+                {
+                    new(JwtRegisteredClaimNames.Name, user.fname),
+                    new(JwtRegisteredClaimNames.Email, user.email),
+                    new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
+                };
+                var token = GenerateJwtToken(user.username, claims);
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    var jsonContent = new StringContent(JsonSerializer.Serialize(userDto), Encoding.UTF8, "application/json"); //Hacky code to get the req to work
+                    var response = await client.PostAsync("http://localhost:5157/v1/createRecord", jsonContent);
+                    Console.WriteLine(response);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine(responseContent);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error calling API");
+                    }
+                }
+
             }
             catch (DbUpdateException)
             {
@@ -149,9 +174,11 @@ internal class Program
             {
 
 
-                var claims = new[]
+                var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.username)
+                    new(JwtRegisteredClaimNames.Name, user.fname),
+                    new(JwtRegisteredClaimNames.Email, user.email),
+                    new(JwtRegisteredClaimNames.NameId, (user.Id).ToString())
                 };
 
                 var token = GenerateJwtToken(user.username, claims);
@@ -162,7 +189,7 @@ internal class Program
         }
     );
 
-        app.MapPut("v1/user/{user_id}", async (int user_id, UserRegisterDto modified ,AccountsContext db) =>
+        app.MapPut("v1/user/{user_id}", async (int user_id, UserRegisterDto modified,AccountsContext db) =>
         {
             var user = await db.Users.FindAsync(user_id);
             if (user == null)
