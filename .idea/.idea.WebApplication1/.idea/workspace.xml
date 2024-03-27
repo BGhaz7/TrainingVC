@@ -20,7 +20,6 @@
       <change beforePath="$PROJECT_DIR$/WebApplication1/obj/Debug/net8.0/WebApplication1.sourcelink.json" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/obj/Debug/net8.0/WebApplication1.sourcelink.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebApplication1/obj/Debug/net8.0/ref/WebApplication1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/obj/Debug/net8.0/ref/WebApplication1.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebApplication1/obj/Debug/net8.0/refint/WebApplication1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/obj/Debug/net8.0/refint/WebApplication1.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApplication1/obj/rider.project.model.nuget.info" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/obj/rider.project.model.nuget.info" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +44,7 @@
     </option>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Users/badr/RiderProjects/WebApplication1/WebApplication1/Migrations/AccountsContextModelSnapshot.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/badr/RiderProjects/WebApplication1/WebApplication1/Program.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -156,7 +155,8 @@
       <workItem from="1711271741429" duration="16000" />
       <workItem from="1711272314936" duration="10000" />
       <workItem from="1711272413096" duration="3326000" />
-      <workItem from="1711277721751" duration="8234000" />
+      <workItem from="1711277721751" duration="8431000" />
+      <workItem from="1711578202902" duration="766000" />
     </task>
     <task id="LOCAL-00001" summary="Implemented DTOs for the endpoints,&#10;Implemented Login endpoint, and implemented password for the user model with hashed passwords.">
       <option name="closed" value="true" />
@@ -174,7 +174,15 @@
       <option name="project" value="LOCAL" />
       <updated>1710676079310</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Init payment services, TODO fix createRecord">
+      <option name="closed" value="true" />
+      <created>1711287627651</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1711287627651</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,7 +212,8 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Implemented DTOs for the endpoints,&#10;Implemented Login endpoint, and implemented password for the user model with hashed passwords." />
     <MESSAGE value="Added JWT Token, now it will return the token upon logging in. ✅" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added JWT Token, now it will return the token upon logging in. ✅" />
+    <MESSAGE value="Init payment services, TODO fix createRecord" />
+    <option name="LAST_COMMIT_MESSAGE" value="Init payment services, TODO fix createRecord" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

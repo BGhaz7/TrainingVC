@@ -129,8 +129,7 @@ internal class Program
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                    var jsonContent = new StringContent(JsonSerializer.Serialize(userDto), Encoding.UTF8, "application/json"); //Hacky code to get the req to work
-                    var response = await client.PostAsync("http://localhost:5157/v1/createRecord", jsonContent);
+                    var response = await client.PostAsync("http://localhost:5157/v1/createRecord", null);
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
                     {
