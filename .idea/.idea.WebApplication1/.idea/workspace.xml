@@ -156,7 +156,8 @@
       <workItem from="1711272314936" duration="10000" />
       <workItem from="1711272413096" duration="3326000" />
       <workItem from="1711277721751" duration="8431000" />
-      <workItem from="1711578202902" duration="766000" />
+      <workItem from="1711578202902" duration="1692000" />
+      <workItem from="1711807148834" duration="4118000" />
     </task>
     <task id="LOCAL-00001" summary="Implemented DTOs for the endpoints,&#10;Implemented Login endpoint, and implemented password for the user model with hashed passwords.">
       <option name="closed" value="true" />
@@ -182,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711287627651</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="implemented connectability with payment services">
+      <option name="closed" value="true" />
+      <created>1711580148153</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1711580148153</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,7 +222,8 @@
     <MESSAGE value="Implemented DTOs for the endpoints,&#10;Implemented Login endpoint, and implemented password for the user model with hashed passwords." />
     <MESSAGE value="Added JWT Token, now it will return the token upon logging in. ✅" />
     <MESSAGE value="Init payment services, TODO fix createRecord" />
-    <option name="LAST_COMMIT_MESSAGE" value="Init payment services, TODO fix createRecord" />
+    <MESSAGE value="implemented connectability with payment services" />
+    <option name="LAST_COMMIT_MESSAGE" value="implemented connectability with payment services" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -156,7 +157,42 @@ internal class Program
         {
             var user = await db.Users.FindAsync(user_id);
             if (user == null) return Results.NotFound(new { message = $"User with id {user_id}, does not exist!" });
-            else return Results.Ok(user);
+            try
+            {
+                await db.SaveChangesAsync();
+                var claims = new List<Claim>
+                {
+                    new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
+                };
+                var token = GenerateJwtToken(user.username, claims);
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    var transactionResponse = await client.GetAsync("http://localhost:5157/v1/transactions");
+                    var balanceResponse = await client.GetAsync("http://localhost:5157/v1/balance");
+                    Console.WriteLine(transactionResponse);
+                    Console.WriteLine(balanceResponse);
+                    if (transactionResponse.StatusCode == HttpStatusCode.OK && balanceResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        var tresponseContent = await transactionResponse.Content.ReadAsStringAsync();
+                        var bresponseContent = await balanceResponse.Content.ReadAsStringAsync();
+                        Console.WriteLine(tresponseContent);
+                        Console.WriteLine(bresponseContent);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error calling Payment Services API");
+                    }
+                }
+
+            }
+            catch (DbUpdateException)
+            {
+                return Results.Problem(
+                    "An error occurred saving the user, please make sure you have entered valid information", "500");
+            }
+
+            return Results.Ok(user);
         });
 
         app.MapPost("v1/login", async (UserLoginDto UserLoginReq, AccountsContext db) =>
@@ -165,10 +201,10 @@ internal class Program
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u =>
                     u.username == UserLoginReq.username);
-            if (user == null)
-            {
-                return Results.BadRequest("Invalid Username or Password");
-            }
+                if (user == null)
+                {
+                    return Results.BadRequest("Invalid Username or Password");
+                }
             else if (pwHasher.VerifyHashedPw(user.SHA256Password, UserLoginReq.password) == true)
             {
 
