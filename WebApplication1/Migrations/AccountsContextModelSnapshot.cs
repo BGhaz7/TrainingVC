@@ -45,6 +45,9 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("loggedin")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("username")
                         .IsRequired()
                         .HasColumnType("text");

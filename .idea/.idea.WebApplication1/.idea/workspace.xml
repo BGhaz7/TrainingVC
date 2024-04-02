@@ -10,6 +10,7 @@
   <component name="ChangeListManager">
     <list default="true" id="261a496a-176f-487d-a584-42e2c966d7b6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.WebApplication1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.WebApplication1/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WebApplication1/Models/User.cs" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/Models/User.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebApplication1/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/Program.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebApplication1/bin/Debug/net8.0/WebApplication1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/bin/Debug/net8.0/WebApplication1.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebApplication1/bin/Debug/net8.0/WebApplication1.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/WebApplication1/bin/Debug/net8.0/WebApplication1.pdb" afterDir="false" />
@@ -157,7 +158,8 @@
       <workItem from="1711272413096" duration="3326000" />
       <workItem from="1711277721751" duration="8431000" />
       <workItem from="1711578202902" duration="1692000" />
-      <workItem from="1711807148834" duration="4118000" />
+      <workItem from="1711807148834" duration="8919000" />
+      <workItem from="1712055988079" duration="547000" />
     </task>
     <task id="LOCAL-00001" summary="Implemented DTOs for the endpoints,&#10;Implemented Login endpoint, and implemented password for the user model with hashed passwords.">
       <option name="closed" value="true" />
@@ -191,7 +193,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711580148153</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added support for balance and transactions query">
+      <option name="closed" value="true" />
+      <created>1711880804819</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1711880804819</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,7 +233,8 @@
     <MESSAGE value="Added JWT Token, now it will return the token upon logging in. ✅" />
     <MESSAGE value="Init payment services, TODO fix createRecord" />
     <MESSAGE value="implemented connectability with payment services" />
-    <option name="LAST_COMMIT_MESSAGE" value="implemented connectability with payment services" />
+    <MESSAGE value="Added support for balance and transactions query" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added support for balance and transactions query" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

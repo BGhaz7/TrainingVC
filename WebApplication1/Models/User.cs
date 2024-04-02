@@ -11,6 +11,7 @@ namespace WebApplication1.Models
         public string lname { get; set; }
         public string email { get; set; }
         public string SHA256Password { get; set; }
+        public bool loggedin { get; set; }
     }   
 }
 

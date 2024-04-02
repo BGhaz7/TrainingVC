@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using WebApplication1.Data;
 using WebApplication1.Models;
+
 public class pwHasher
 {
     public static string hashPw(string pw)
@@ -82,6 +83,7 @@ internal class Program
     }
     public static void Main(string[] args)
     {
+        string _token = "";
         var pwHasher = new pwHasher();
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddDbContext<AccountsContext>(options =>
@@ -114,22 +116,23 @@ internal class Program
                 email = userDto.email,
                 SHA256Password = pwHasher.hashPw(userDto.password),
                 fname = userDto.fname,
-                lname = userDto.lname
+                lname = userDto.lname,
+                loggedin = true
             };
             db.Users.Add(user);
             try
             {
                 await db.SaveChangesAsync();
-                var claims = new List<Claim>
-                {
-                    new(JwtRegisteredClaimNames.Name, user.fname),
-                    new(JwtRegisteredClaimNames.Email, user.email),
-                    new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
-                };
-                var token = GenerateJwtToken(user.username, claims);
                 using (var client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    var claims = new List<Claim>
+                    {
+                        new(JwtRegisteredClaimNames.Name, user.fname),
+                        new(JwtRegisteredClaimNames.Email, user.email),
+                        new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
+                    };
+                    _token = GenerateJwtToken(user.username, claims);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
                     var response = await client.PostAsync("http://localhost:5157/v1/createRecord", null);
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
@@ -157,6 +160,7 @@ internal class Program
         {
             var user = await db.Users.FindAsync(user_id);
             if (user == null) return Results.NotFound(new { message = $"User with id {user_id}, does not exist!" });
+            if (user.loggedin != true) return Results.NotFound(new {message = $"User with id {user_id} is not logged in!" });
             try
             {
                 await db.SaveChangesAsync();
@@ -164,10 +168,10 @@ internal class Program
                 {
                     new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
                 };
-                var token = GenerateJwtToken(user.username, claims);
                 using (var client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    Console.WriteLine(_token);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
                     var transactionResponse = await client.GetAsync("http://localhost:5157/v1/transactions");
                     var balanceResponse = await client.GetAsync("http://localhost:5157/v1/balance");
                     Console.WriteLine(transactionResponse);
@@ -181,6 +185,8 @@ internal class Program
                     }
                     else
                     {
+                        Console.WriteLine(transactionResponse);
+                        Console.WriteLine(balanceResponse);
                         Console.WriteLine("Error calling Payment Services API");
                     }
                 }
@@ -213,11 +219,11 @@ internal class Program
                 {
                     new(JwtRegisteredClaimNames.Name, user.fname),
                     new(JwtRegisteredClaimNames.Email, user.email),
-                    new(JwtRegisteredClaimNames.NameId, (user.Id).ToString())
+                    new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
                 };
-
-                var token = GenerateJwtToken(user.username, claims);
-                return Results.Ok(new { token });
+                user.loggedin = true;
+                _token = GenerateJwtToken(user.username, claims);
+                return Results.Ok(new { _token });
 
             }
             return Results.BadRequest("Invalid Username or Password");
@@ -227,10 +233,12 @@ internal class Program
         app.MapPut("v1/user/{user_id}", async (int user_id, UserRegisterDto modified,AccountsContext db) =>
         {
             var user = await db.Users.FindAsync(user_id);
-            if (user == null)
+            if (user == null || user.loggedin != true)
             {
                 Results.BadRequest("No such user found!");
             }
+            
+            
 
             user.username = modified.username;
             user.email = modified.email;
