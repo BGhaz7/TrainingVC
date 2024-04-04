@@ -117,7 +117,7 @@ internal class Program
                 SHA256Password = pwHasher.hashPw(userDto.password),
                 fname = userDto.fname,
                 lname = userDto.lname,
-                loggedin = true
+                loggedin = false
             };
             db.Users.Add(user);
             try
@@ -159,6 +159,7 @@ internal class Program
         app.MapGet("/v1/user/{user_id}", async (int user_id, AccountsContext db) =>
         {
             var user = await db.Users.FindAsync(user_id);
+            Console.WriteLine(user.loggedin);
             if (user == null) return Results.NotFound(new { message = $"User with id {user_id}, does not exist!" });
             if (user.loggedin != true) return Results.NotFound(new {message = $"User with id {user_id} is not logged in!" });
             try
@@ -204,7 +205,6 @@ internal class Program
         app.MapPost("v1/login", async (UserLoginDto UserLoginReq, AccountsContext db) =>
         {
             var user = await db.Users
-                .AsNoTracking()
                 .FirstOrDefaultAsync(u =>
                     u.username == UserLoginReq.username);
                 if (user == null)
@@ -222,6 +222,8 @@ internal class Program
                     new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
                 };
                 user.loggedin = true;
+                Console.WriteLine(user.loggedin);
+                await db.SaveChangesAsync();
                 _token = GenerateJwtToken(user.username, claims);
                 return Results.Ok(new { _token });
 
@@ -233,6 +235,7 @@ internal class Program
         app.MapPut("v1/user/{user_id}", async (int user_id, UserRegisterDto modified,AccountsContext db) =>
         {
             var user = await db.Users.FindAsync(user_id);
+            Console.WriteLine(user.loggedin);
             if (user == null || user.loggedin != true)
             {
                 Results.BadRequest("No such user found!");
