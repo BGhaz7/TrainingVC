@@ -81,9 +81,30 @@ internal class Program
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    
+    private static string extractToken(HttpContext context)
+    {
+        var authorizationHeader = context.Request.Headers["Authorization"].ToString();
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Missing or invalid Authorization header.");
+        }
+        return authorizationHeader["Bearer ".Length..].Trim();
+    }
+    
+    private static int extractIdFromJWT(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            throw new InvalidOperationException("Token does not contain a user ID.");
+        }
+        return int.Parse(userIdClaim.Value);
+    }
     public static void Main(string[] args)
     {
-        string _token = "";
         var pwHasher = new pwHasher();
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddDbContext<AccountsContext>(options =>
@@ -100,15 +121,55 @@ internal class Program
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
+                
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                        {
+                            context.Response.Headers.Append("Token-Expired", "true");
+                        }
+
+                        if (context.Exception.GetType() == typeof(SecurityTokenInvalidSignatureException))
+                        {
+                            context.Response.Headers.Append("Token-Invalid", "true");
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+                    
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+                        return context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "You are not authorized or your token has expired." }));
+                    }
+                };
             });
 
         builder.Services.AddControllers();
         var app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization(); //This also applies to minimal apis
+        app.Use(async (context, next) =>
+        {
+            await next();
+
+            if (context.Response is { StatusCode: 401, HasStarted: false })
+            {
+                // Handle the case where the token is invalid or expired
+                // Modify the response if needed
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Invalid or expired token provided." }));
+            }
+        });
 
 
-        app.MapPost("v1/user", async (UserRegisterDto userDto, AccountsContext db) =>
+        app.MapPost("v1/user", async (HttpContext httpContext,UserRegisterDto userDto, AccountsContext db) =>
         {
             var user = new User
             {
@@ -131,8 +192,8 @@ internal class Program
                         new(JwtRegisteredClaimNames.Email, user.email),
                         new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
                     };
-                    _token = GenerateJwtToken(user.username, claims);
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                    var token = GenerateJwtToken(user.username, claims);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                     var response = await client.PostAsync("http://localhost:5157/v1/createRecord", null);
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
@@ -156,10 +217,9 @@ internal class Program
             return Results.Created($"/v1/user/{user.Id}", user);
         });
 
-        app.MapGet("/v1/user/{user_id}", async (int user_id, AccountsContext db) =>
+        app.MapGet("/v1/user/{user_id}", async (HttpContext httpContext, int user_id, AccountsContext db) =>
         {
             var user = await db.Users.FindAsync(user_id);
-            Console.WriteLine(user.loggedin);
             if (user == null) return Results.NotFound(new { message = $"User with id {user_id}, does not exist!" });
             if (user.loggedin != true) return Results.NotFound(new {message = $"User with id {user_id} is not logged in!" });
             try
@@ -171,8 +231,8 @@ internal class Program
                 };
                 using (var client = new HttpClient())
                 {
-                    Console.WriteLine(_token);
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                    var token = extractToken(httpContext);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                     var transactionResponse = await client.GetAsync("http://localhost:5157/v1/transactions");
                     var balanceResponse = await client.GetAsync("http://localhost:5157/v1/balance");
                     Console.WriteLine(transactionResponse);
@@ -224,18 +284,17 @@ internal class Program
                 user.loggedin = true;
                 Console.WriteLine(user.loggedin);
                 await db.SaveChangesAsync();
-                _token = GenerateJwtToken(user.username, claims);
-                return Results.Ok(new { _token });
+                var token = GenerateJwtToken(user.username, claims);
+                return Results.Ok(new { token });
 
             }
             return Results.BadRequest("Invalid Username or Password");
         }
     );
 
-        app.MapPut("v1/user/{user_id}", async (int user_id, UserRegisterDto modified,AccountsContext db) =>
+        app.MapPut("v1/user/{user_id}", async (HttpContext httpContext ,int user_id, UserRegisterDto modified,AccountsContext db) =>
         {
             var user = await db.Users.FindAsync(user_id);
-            Console.WriteLine(user.loggedin);
             if (user == null || user.loggedin != true)
             {
                 Results.BadRequest("No such user found!");
