@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using RabbitMQ.Client;
 
 public class pwHasher
 {
@@ -105,6 +107,9 @@ internal class Program
     }
     public static void Main(string[] args)
     {
+        var accountSender = new ConnectionFactory { HostName = "localhost", Port = 5157};
+        using var connection = accountSender.CreateConnection();
+        using var channel = connection.CreateModel();
         var pwHasher = new pwHasher();
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddDbContext<AccountsContext>(options =>
@@ -171,6 +176,11 @@ internal class Program
 
         app.MapPost("v1/user", async (HttpContext httpContext,UserRegisterDto userDto, AccountsContext db) =>
         {
+            channel.QueueDeclare(queue: "recordCreate",
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
             var user = new User
             {
                 username = userDto.username,
@@ -184,7 +194,19 @@ internal class Program
             try
             {
                 await db.SaveChangesAsync();
-                using (var client = new HttpClient())
+                var message = JsonSerializer.Serialize(new
+                {
+                    UserId = user.Id,
+                    FirstName = user.fname,
+                    Email = user.email
+                });
+                var body = Encoding.UTF8.GetBytes(message);
+                channel.BasicPublish(exchange: String.Empty,
+                    routingKey: "recordCreate",
+                    basicProperties: null,
+                    body: body);
+                Console.WriteLine(" [x] Sent {0}", message);
+                /*using (var client = new HttpClient())
                 {
                     var claims = new List<Claim>
                     {
@@ -205,7 +227,8 @@ internal class Program
                     {
                         Console.WriteLine("Error calling API");
                     }
-                }
+                }*/
+                
 
             }
             catch (DbUpdateException)
