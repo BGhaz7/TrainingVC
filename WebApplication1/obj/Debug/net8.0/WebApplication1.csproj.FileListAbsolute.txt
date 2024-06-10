@@ -314,3 +314,4 @@ C:\Users\ASUS\RiderProjects\TrainingVC\WebApplication1\obj\Debug\net8.0\refint\W
 C:\Users\ASUS\RiderProjects\TrainingVC\WebApplication1\obj\Debug\net8.0\WebApplication1.pdb
 C:\Users\ASUS\RiderProjects\TrainingVC\WebApplication1\obj\Debug\net8.0\WebApplication1.genruntimeconfig.cache
 C:\Users\ASUS\RiderProjects\TrainingVC\WebApplication1\obj\Debug\net8.0\ref\WebApplication1.dll
+C:\Users\ASUS\RiderProjects\TrainingVC\WebApplication1\bin\Debug\net8.0\RabbitMQ.Client.dll

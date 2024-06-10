@@ -107,7 +107,7 @@ internal class Program
     }
     public static void Main(string[] args)
     {
-        var accountSender = new ConnectionFactory { HostName = "localhost", Port = 5157};
+        var accountSender = new ConnectionFactory {Uri = new Uri("amqp://guest:guest@localhost:5672")};
         using var connection = accountSender.CreateConnection();
         using var channel = connection.CreateModel();
         var pwHasher = new pwHasher();
