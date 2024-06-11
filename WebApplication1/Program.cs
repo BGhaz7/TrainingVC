@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.IdentityModel.Tokens;
 using WebApplication1.Data;
 using WebApplication1.Models;
@@ -205,7 +206,7 @@ internal class Program
                     routingKey: "recordCreate",
                     basicProperties: null,
                     body: body);
-                Console.WriteLine(" [x] Sent {0}", message);
+                Console.WriteLine(" Accounts Microservice Sent {0}", message);
                 /*using (var client = new HttpClient())
                 {
                     var claims = new List<Claim>
@@ -242,6 +243,10 @@ internal class Program
 
         app.MapGet("/v1/user/{user_id}", async (HttpContext httpContext, int user_id, AccountsContext db) =>
         {
+            if (!httpContext.Request.Headers.ContainsKey("Authorization") && !httpContext.Request.Headers["Authorization"].ToString().StartsWith("Bearer "))
+            {
+                return Results.Unauthorized();
+            }
             var user = await db.Users.FindAsync(user_id);
             if (user == null) return Results.NotFound(new { message = $"User with id {user_id}, does not exist!" });
             if (user.loggedin != true) return Results.NotFound(new {message = $"User with id {user_id} is not logged in!" });
@@ -252,7 +257,7 @@ internal class Program
                 {
                     new(JwtRegisteredClaimNames.NameId, user.Id.ToString())
                 };
-                using (var client = new HttpClient())
+                /*using (var client = new HttpClient())
                 {
                     var token = extractToken(httpContext);
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -273,9 +278,25 @@ internal class Program
                         Console.WriteLine(balanceResponse);
                         Console.WriteLine("Error calling Payment Services API");
                     }
-                }
-
+                }*/ 
+                channel.QueueDeclare(queue: "transactBalanceRequest",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+                var message = JsonSerializer.Serialize(new
+                {
+                    UserId = user_id,
+                });
+                var body = Encoding.UTF8.GetBytes(message);
+                channel.BasicPublish(exchange: String.Empty,
+                    routingKey: "recordCreate",
+                    basicProperties: null,
+                    body: body);
+                Console.WriteLine(" Accounts Microservice Sent to Payments Microservice {0}", message);
+                
             }
+            
             catch (DbUpdateException)
             {
                 return Results.Problem(
